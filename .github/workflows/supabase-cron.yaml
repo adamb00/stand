@@ -1,14 +1,14 @@
 name: Call Supabase Edge Function
 
 on:
+  push:
+    branches:
+      - main # vagy a te fő branch-ed neve
   schedule:
-    # Ez 5 percenként futtatja
-    - cron: '*/5 * * * *'
-
+    - cron: '*/5 * * * *' # 5 percenként
 jobs:
   call-function:
     runs-on: ubuntu-latest
-
     steps:
       - name: Call Supabase Edge Function
         env:
