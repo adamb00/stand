@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -14,34 +8,135 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-model User {
-  id        String    @id @default(cuid())
-  email     String    @unique
-  password  String
-  accounts  Account[]
-  createdAt DateTime  @default(now())
-
-  @@map("Users")
+// Éttermek
+model Restaurant {
+  id                    String                 @id @default(cuid())
+  name                  String
+  location              String?
+  inventoryPeriods      InventoryPeriod[]
+  users                 User[]
+  inventoryTransactions InventoryTransaction[]
+  createdAt             DateTime               @default(now())
+  updatedAt             DateTime               @updatedAt
 }
 
-model Account {
-  userId            String
-  type              String
-  provider          String
-  providerAccountId String
-  refresh_token     String?
-  access_token      String?
-  expires_at        Int?
-  token_type        String?
-  scope             String?
-  id_token          String?
-  session_state     String?
+// Termékek
+model Product {
+  id             String          @id @default(cuid())
+  name           String
+  unit           Unit // LITER, ÜVEG, CSOMAG, KG
+  priceHistory   PriceHistory[]
+  inventoryLines InventoryLine[]
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+}
+
+// Ár történet – nettó és bruttó beszerzési árak hónapváltással,
+// valamint opcionális számlán szereplő eltérés
+model PriceHistory {
+  id        String  @id @default(cuid())
+  product   Product @relation(fields: [productId], references: [id])
+  productId String
+
+  // A beszállító által közölt nettó egységár (Ft), ez a „várt” nettó ár
+  netUnitPrice Decimal
+
+  // Az ebből számolt beszerzési bruttó egységár (nettó × 1.27)
+  unitPrice Decimal
+
+  hasPriceDifference Boolean // van-e eltérés a számlán szereplő nettó ár és a várt nettó ár között
+  priceDifference    Decimal? // eltérés a számlán szereplő nettó ár és a várt nettó ár között
+
+  validFrom DateTime // érvényesség kezdete
 
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@index([productId, validFrom])
+}
 
-  @@id([provider, providerAccountId])
-  @@map("Accounts")
+// Havi készlet periódus egy étteremre
+model InventoryPeriod {
+  id           String          @id @default(cuid())
+  restaurant   Restaurant      @relation(fields: [restaurantId], references: [id])
+  restaurantId String
+  year         Int
+  month        Int
+  lines        InventoryLine[]
+  createdAt    DateTime        @default(now())
+
+  @@unique([restaurantId, year, month])
+}
+
+// Stand sorok egy periódusban
+model InventoryLine {
+  id        String          @id @default(cuid())
+  period    InventoryPeriod @relation(fields: [periodId], references: [id])
+  periodId  String
+  product   Product         @relation(fields: [productId], references: [id])
+  productId String
+
+  openingQuantity  Decimal // Nyitó mennyiség
+  closingQuantity  Decimal? // Záró mennyiség (kézi felvitel)
+  sellingUnitPrice Decimal? // Kézzel megadott eladási, bruttó egységár (Ft) a standnál
+
+  transactions InventoryTransaction[]
+  createdAt    DateTime               @default(now())
+
+  @@unique([periodId, productId])
+}
+
+// Bevétel / kivétel tranzakciók
+model InventoryTransaction {
+  id           String        @id @default(cuid())
+  line         InventoryLine @relation(fields: [lineId], references: [id])
+  lineId       String
+  restaurant   Restaurant?   @relation(fields: [restaurantId], references: [id])
+  restaurantId String?
+
+  type     TransactionType // INBOUND vagy OUTBOUND
+  quantity Decimal // mennyiség
+  date     DateTime        @default(now())
+  userId   String?
+  user     User?           @relation(fields: [userId], references: [id])
+  reason   String? // selejt, átutalás, beszállítás stb.
+
+  // Csak INBOUND esetén:
+  expectedNetUnitPrice Decimal? // a PriceHistory-ból várt nettó egységár
+  actualNetUnitPrice   Decimal? // a számlán ténylegesen szereplő nettó egységár
+
+  createdAt DateTime @default(now())
+
+  @@index([lineId])
+  @@index([restaurantId])
+}
+
+// Felhasználók
+model User {
+  id           String                 @id @default(cuid())
+  name         String
+  email        String                 @unique
+  password     String
+  role         Role
+  restaurant   Restaurant?            @relation(fields: [restaurantId], references: [id])
+  restaurantId String?
+  transactions InventoryTransaction[]
+  createdAt    DateTime               @default(now())
+  updatedAt    DateTime               @updatedAt
+}
+
+enum Role {
+  ADMIN
+  USER
+}
+
+enum TransactionType {
+  INBOUND
+  OUTBOUND
+}
+
+enum Unit {
+  LITER
+  ÜVEG
+  CSOMAG
+  KG
 }

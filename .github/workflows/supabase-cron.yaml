@@ -1,0 +1,17 @@
+name: Call Supabase Edge Function
+
+on:
+  schedule:
+    # Ez 5 percenként futtatja
+    - cron: '*/5 * * * *'
+
+jobs:
+  call-function:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Call Supabase Edge Function
+        env:
+          SUPABASE_FUNCTION_URL: ${{ secrets.SUPABASE_FUNCTION_URL }}
+        run: |
+          curl -X POST "$SUPABASE_FUNCTION_URL"

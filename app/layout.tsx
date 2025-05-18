@@ -1,15 +1,25 @@
+import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 import './_styles/globals.css';
+import { auth } from '@/auth';
+import { AppSidebar } from '@/components/app-sidebar';
 
-export default function RootLayout({
-   children,
+export default async function RootLayout({
+  children,
 }: Readonly<{
-   children: React.ReactNode;
+  children: React.ReactNode;
 }>) {
-   return (
-      <html lang='en'>
-         <body className={`antialiased`}>{children}</body>
-      </html>
-   );
+  const session = await auth();
+
+  return (
+    <html lang='en'>
+      <body className={`antialiased`}>
+        <SidebarProvider>
+          {session?.user && <AppSidebar user={session.user} />}
+          <SidebarInset>{children}</SidebarInset>
+        </SidebarProvider>
+      </body>
+    </html>
+  );
 }
 
 // TODO ADD FAVICON TO APP FOLDER

@@ -1,89 +1,77 @@
-"use client"
+'use client';
 
-import {
-  Folder,
-  Forward,
-  MoreHorizontal,
-  Trash2,
-  type LucideIcon,
-} from "lucide-react"
-
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 import {
   SidebarGroup,
-  SidebarGroupLabel,
   SidebarMenu,
-  SidebarMenuAction,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  useSidebar,
-} from "@/components/ui/sidebar"
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
+} from '@/components/ui/sidebar';
+import {
+  ChevronsRight,
+  ChevronsLeft,
+  PersonStanding,
+  GitPullRequestCreate,
+} from 'lucide-react';
+import { Collapsible } from './ui/collapsible';
 
-export function NavProjects({
-  projects,
-}: {
-  projects: {
-    name: string
-    url: string
-    icon: LucideIcon
-  }[]
-}) {
-  const { isMobile } = useSidebar()
-
+export function NavProjects() {
   return (
-    <SidebarGroup className="group-data-[collapsible=icon]:hidden">
-      <SidebarGroupLabel>Projects</SidebarGroupLabel>
+    <SidebarGroup className='group-data-[collapsible=icon]:hidden'>
       <SidebarMenu>
-        {projects.map((item) => (
-          <SidebarMenuItem key={item.name}>
-            <SidebarMenuButton asChild>
-              <a href={item.url}>
-                <item.icon />
-                <span>{item.name}</span>
-              </a>
-            </SidebarMenuButton>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <SidebarMenuAction showOnHover>
-                  <MoreHorizontal />
-                  <span className="sr-only">More</span>
-                </SidebarMenuAction>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                className="w-48 rounded-lg"
-                side={isMobile ? "bottom" : "right"}
-                align={isMobile ? "end" : "start"}
+        <Collapsible
+          key={'projects'}
+          asChild
+          defaultOpen={true}
+          className='group/collapsible '
+        >
+          <SidebarGroup className='flex flex-col gap-y-4'>
+            <SidebarMenuSubItem>
+              <SidebarMenuSubButton
+                asChild
+                className='text-lg hover:text-green-700'
               >
-                <DropdownMenuItem>
-                  <Folder className="text-muted-foreground" />
-                  <span>View Project</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <Forward className="text-muted-foreground" />
-                  <span>Share Project</span>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem>
-                  <Trash2 className="text-muted-foreground" />
-                  <span>Delete Project</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </SidebarMenuItem>
-        ))}
-        <SidebarMenuItem>
-          <SidebarMenuButton className="text-sidebar-foreground/70">
-            <MoreHorizontal className="text-sidebar-foreground/70" />
-            <span>More</span>
-          </SidebarMenuButton>
-        </SidebarMenuItem>
+                <a href={'/inbound'}>
+                  <ChevronsRight />
+                  <span>Bevételezés</span>
+                </a>
+              </SidebarMenuSubButton>
+            </SidebarMenuSubItem>
+            <SidebarMenuSubItem>
+              <SidebarMenuSubButton
+                asChild
+                className='text-lg hover:text-green-700'
+              >
+                <a href={'/outbound'}>
+                  <ChevronsLeft />
+                  <span>Kivételezés</span>
+                </a>
+              </SidebarMenuSubButton>
+            </SidebarMenuSubItem>
+            <SidebarMenuSubItem>
+              <SidebarMenuSubButton
+                asChild
+                className='text-lg hover:text-green-700'
+              >
+                <a href={'/new-closing'}>
+                  <GitPullRequestCreate />
+                  <span>Új záró hozzáadása</span>
+                </a>
+              </SidebarMenuSubButton>
+            </SidebarMenuSubItem>
+            <SidebarMenuSubItem>
+              <SidebarMenuSubButton
+                asChild
+                className='text-lg hover:text-green-700'
+              >
+                <a href={'/stock'}>
+                  <PersonStanding />
+                  <span>Stand</span>
+                </a>
+              </SidebarMenuSubButton>
+            </SidebarMenuSubItem>
+          </SidebarGroup>
+        </Collapsible>
       </SidebarMenu>
     </SidebarGroup>
-  )
+  );
 }
