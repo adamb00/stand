@@ -10,14 +10,12 @@ jobs:
   call-function:
     runs-on: ubuntu-latest
     steps:
-      - name: Debug print partial service role key
-        run: echo "Service role key prefix --> ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" | cut -c 1-8
-
       - name: Call Supabase Edge Function
         env:
           SUPABASE_FUNCTION_URL: ${{ secrets.SUPABASE_FUNCTION_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: |
-          curl -L -X POST ${{ secrets.SUPABASE_FUNCTION_URL }} \
-          -H "Authorization: Bearer ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" \
+          curl -L -X POST "$SUPABASE_FUNCTION_URL" \
+          -H "Authorization: Bearer $SUPABASE_SERVICE_ROLE_KEY" \
           -H "Content-Type: application/json" \
           --data '{"name":"Functions"}'
