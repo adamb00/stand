@@ -14,4 +14,5 @@ jobs:
         env:
           SUPABASE_FUNCTION_URL: ${{ secrets.SUPABASE_FUNCTION_URL }}
         run: |
-          curl -X POST "$SUPABASE_FUNCTION_URL"
+          curl -X POST "$SUPABASE_FUNCTION_URL" \
+          -H "Authorization: Bearer ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}"
