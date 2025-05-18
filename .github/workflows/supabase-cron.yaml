@@ -10,6 +10,9 @@ jobs:
   call-function:
     runs-on: ubuntu-latest
     steps:
+      - name: Debug print partial service role key
+        run: echo "Service role key prefix --> ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" | cut -c 1-8
+
       - name: Call Supabase Edge Function
         env:
           SUPABASE_FUNCTION_URL: ${{ secrets.SUPABASE_FUNCTION_URL }}
