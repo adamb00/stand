@@ -14,7 +14,7 @@ jobs:
         env:
           SUPABASE_FUNCTION_URL: ${{ secrets.SUPABASE_FUNCTION_URL }}
         run: |
-          curl -L -X POST 'https://gzmlhjxejcbipeaqaqkw.supabase.co/functions/v1/create-inventory-period' \
-          -H 'Authorization: Bearer ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}' \
-          -H 'Content-Type: application/json' \
+          curl -L -X POST ${{ secrets.SUPABASE_FUNCTION_URL }} \
+          -H "Authorization: Bearer ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" \
+          -H "Content-Type: application/json" \
           --data '{"name":"Functions"}'
